@@ -40,13 +40,23 @@ Demonstrate your understanding of this Sprint's concepts by answering the follow
 
 - [ ] Mention two parts of Express that you learned about this week.
 
+    `A` - Middleware and Routing
+
 - [ ] Describe Middleware?
+
+    `A` - Middleware allows for adding features to express.
 
 - [ ] Describe a Resource?
 
+    `A` - Anything available to the client via the REST API. Each resource is accessible via a unique URI. Resources are managed via HTTP methods. (CRUD operations)
+
 - [ ] What can the API return to help clients know if a request was successful?
 
+    `A` - Status messages with the appropriate HTTP status code for the specific operation requested.
+
 - [ ] How can we partition our application into sub-applications?
+
+    `A` - We can abstract the functions out into their own components and import only what we need into each component. This gives each component a single functional purpose, and makes our app cleaner and more human friendly to work with.
 
 ## Minimum Viable Product
 
