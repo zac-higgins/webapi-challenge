@@ -20,7 +20,7 @@ router.post('/', validateProjectBody, (req, res) => {
 });
 
 //Creates a new Action under a specific Project
-router.post('/:id', validateActionBody, (req, res) => {
+router.post('/actions', validateActionBody, (req, res) => {
     const actionData = req.body;
 
     actionsDB.insert(actionData)
@@ -81,6 +81,15 @@ router.delete('/:id', validateProjectID, (req, res) => {
         })
 });
 
+//Deletes a specific action
+router.delete('/actions/:actionID', validateActionID, (req, res) => {
+    const actionID = req.params.actionID;
+    actionsDB.remove(actionID)
+        .then(() => {
+            res.status(200).json({ message: 'Action deleted successfully' })
+        })
+})
+
 //----------PUT Requests----------//
 
 //Updates a specific project
@@ -97,9 +106,24 @@ router.put('/:id', validateProjectID, validateProjectBody, (req, res) => {
         })
 });
 
+//Updates a specific action for a specific project
+router.put('/actions/:actionID', validateProjectID, validateActionBody, (req, res) => {
+    const actionID = req.params.actionID;
+    const changes = req.body;
+
+    actionsDB.update(actionID, changes)
+        .then(action => {
+            res.status(200).json(action);
+        })
+        .catch(err => {
+            console.log(`error on PUT /api/projects/actions/${actionID}`, err);
+            res.status(500).json({ error: "The action information could not be updated." })
+        })
+})
+
 //---------custom middleware---------//
 
-//checks the given project id to make sure it exists in the database
+//checks the given PROJECT ID to make sure it exists in the database
 function validateProjectID(req, res, next) {
     const id = req.params.id;
 
@@ -114,6 +138,24 @@ function validateProjectID(req, res, next) {
         .catch(err => {
             console.log(`error on GET /api/projects/${id}`, err);
             res.status(500).json({ error: "The project information could not be retrieved." })
+        });
+}
+
+//Checks the given ACTION ID to make sure it exists in the database
+function validateActionID(req, res, next) {
+    const id = req.params.id;
+
+    actionsDB.get(id)
+        .then(action => {
+            if (action) {
+                next();
+            } else {
+                res.status(400).json({ message: "invalid action id" })
+            }
+        })
+        .catch(err => {
+            console.log(`error on GET /api/projects/actions/${id}`, err);
+            res.status(500).json({ error: "The action information could not be retrieved." })
         });
 }
 
@@ -138,32 +180,25 @@ function validateActionBody(req, res, next) {
             if (!project) {
                 res.status(400).json({ message: "invalid project id" })
             } else {
-                actionsDB.get(id)
-                    .then(project => {
-                        if (project) {
-                            if (!actionData) {
-                                res.status(400).json({ message: "missing action data" })
-                            } else if (!actionData.description) {
-                                res.status(400).json({ message: "missing required description field" })
-                            } else if (actionData.description.length > 128) {
-                                res.status(400).json({ message: "Description must be 128 characters or less." })
-                            } else if (!actionData.project_id) {
-                                res.status(400).json({ message: "missing required project_id field" })
-                            } else if (!actionData.notes) {
-                                res.status(400).json({ message: "missing required notes field" })
-                            } else {
-                                next();
-                            }
-                        } else {
-                            res.status(400).json({ message: "invalid project id" })
-                        }
-                    })
-                    .catch(err => {
-                        console.log(`error on GET /api/projects/${id}`, err);
-                        res.status(500).json({ error: "The project information could not be retrieved." })
-                    });
+                if (!actionData) {
+                    res.status(400).json({ message: "missing action data" })
+                } else if (!actionData.description) {
+                    res.status(400).json({ message: "missing required description field" })
+                } else if (actionData.description.length > 128) {
+                    res.status(400).json({ message: "Description must be 128 characters or less." })
+                } else if (!actionData.project_id) {
+                    res.status(400).json({ message: "missing required project_id field" })
+                } else if (!actionData.notes) {
+                    res.status(400).json({ message: "missing required notes field" })
+                } else {
+                    next();
+                }
             }
         })
+        .catch(err => {
+            console.log(`error on GET /api/projects/${id}`, err);
+            res.status(500).json({ error: "The project information could not be retrieved." })
+        });
 }
 
 module.exports = router;
