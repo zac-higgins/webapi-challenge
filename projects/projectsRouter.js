@@ -107,7 +107,7 @@ router.put('/:id', validateProjectID, validateProjectBody, (req, res) => {
 });
 
 //Updates a specific action for a specific project
-router.put('/actions/:actionID', validateProjectID, validateActionBody, (req, res) => {
+router.put('/actions/:actionID', validateProjectID, validateActionID, validateActionBody, (req, res) => {
     const actionID = req.params.actionID;
     const changes = req.body;
 
@@ -143,7 +143,7 @@ function validateProjectID(req, res, next) {
 
 //Checks the given ACTION ID to make sure it exists in the database
 function validateActionID(req, res, next) {
-    const id = req.params.id;
+    const id = req.params.actionID;
 
     actionsDB.get(id)
         .then(action => {
